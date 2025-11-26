@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento Legislativo Chile</title>
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Chart.js para visualizaciones -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🇨🇱 Seguimiento Legislativo Chile</h1>
+            <p>Transparencia y datos sobre la actividad del Congreso Nacional</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Sección de Estadísticas Generales -->
+        <section class="stats-section">
+            <h2>Estadísticas Generales</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-votaciones">-</div>
+                    <div class="stat-label">Total Votaciones</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="ultima-actualizacion">-</div>
+                    <div class="stat-label">Última Actualización</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="total-campos">-</div>
+                    <div class="stat-label">Campos de Datos</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección de Visualización -->
+        <section class="visualization-section">
+            <h2>Visualizaciones</h2>
+            
+            <div class="charts-grid">
+                <div class="chart-wrapper">
+                    <h3>Actividad por Fecha</h3>
+                    <div class="chart-container">
+                        <canvas id="actividadChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3>Resultados de Votaciones</h3>
+                    <div class="chart-container">
+                        <canvas id="resultadosChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3>Tipo de Proyectos</h3>
+                    <div class="chart-container">
+                        <canvas id="tiposChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3>Distribución de Votos</h3>
+                    <div class="chart-container">
+                        <canvas id="votosChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección de Tabla de Datos -->
+        <section class="data-section">
+            <h2>Datos Recientes</h2>
+            <div class="table-container">
+                <table id="votaciones-table">
+                    <thead>
+                        <tr id="table-headers">
+                            <!-- Headers se llenan dinámicamente -->
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Datos se llenan dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Información del Proyecto -->
+        <section class="info-section">
+            <h2>Sobre este Proyecto</h2>
+            <p>
+                Este sitio recopila y visualiza datos de la actividad legislativa 
+                en Chile, utilizando información pública de la 
+                <a href="https://opendata.camara.cl/" target="_blank">Cámara de Diputados</a>.
+            </p>
+            <p>
+                Los datos se actualizan periódicamente y están disponibles en formato abierto.
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>
+                Datos obtenidos de OpenData Cámara de Diputados • 
+                <a href="https://github.com/tuusuario/seguimiento-legislativo-chile" target="_blank">
+                    Ver en GitHub
+                </a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script src="js/visualizations.js"></script>
+</body>
+</html>

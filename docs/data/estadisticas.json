@@ -1,0 +1,19 @@
+{
+  "total_votaciones": 1844,
+  "fecha_actualizacion": "2024-12-18",
+  "campos_disponibles": [
+    "Id",
+    "Descripcion",
+    "Fecha",
+    "TotalSi",
+    "TotalNo",
+    "TotalAbstencion",
+    "TotalDispensado",
+    "Quorum_Codigo",
+    "Quorum",
+    "Resultado_Codigo",
+    "Resultado",
+    "Tipo_Codigo",
+    "Tipo"
+  ]
+}
