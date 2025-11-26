@@ -31,9 +31,10 @@ def actualizar_datos_votaciones(annos=[2023, 2024]):
     processor = DataProcessor(input_dir='data/raw', output_dir='data/processed')
     
     todas_votaciones = []
+    total_annos = len(annos)
     
-    for anno in annos:
-        print(f"\n📅 Procesando año {anno}...")
+    for idx, anno in enumerate(annos, 1):
+        print(f"\n📅 [{idx}/{total_annos}] Procesando año {anno}...")
         
         # Obtener datos del API
         xml_data = api.obtener_votaciones_por_anno(anno)
@@ -48,9 +49,18 @@ def actualizar_datos_votaciones(annos=[2023, 2024]):
                 todas_votaciones.extend(votaciones)
                 print(f"  ✓ {len(votaciones)} votaciones del año {anno}")
             else:
-                print(f"  ✗ No se pudieron parsear votaciones de {anno}")
+                print(f"  ⚠️  No se encontraron votaciones para {anno}")
         else:
-            print(f"  ✗ No se pudieron obtener datos de {anno}")
+            print(f"  ⚠️  No se pudieron obtener datos de {anno}")
+        
+        # Pequeña pausa para no sobrecargar el API
+        if idx < total_annos:
+            import time
+            time.sleep(0.5)
+    
+    print(f"\n{'='*70}")
+    print(f"✅ TOTAL ACUMULADO: {len(todas_votaciones)} votaciones")
+    print(f"{'='*70}")
     
     return todas_votaciones
 
@@ -73,44 +83,101 @@ def generar_datos_para_sitio(votaciones):
     # Crear directorio docs/data si no existe
     os.makedirs('docs/data', exist_ok=True)
     
-    # 1. Datos completos (limitados)
+    # Ordenar votaciones por fecha (más recientes primero)
+    votaciones_ordenadas = sorted(
+        votaciones, 
+        key=lambda x: x.get('Fecha', ''), 
+        reverse=True
+    )
+    
+    # 1. Datos completos (limitados a últimas 1000)
     datos_completos = {
         'metadata': {
             'fecha_actualizacion': datetime.now().isoformat(),
-            'total_votaciones': len(votaciones),
-            'version': '1.0'
+            'total_votaciones': len(votaciones_ordenadas),
+            'anio_mas_antiguo': min(v.get('Fecha', '')[:4] for v in votaciones if v.get('Fecha')),
+            'anio_mas_reciente': max(v.get('Fecha', '')[:4] for v in votaciones if v.get('Fecha')),
+            'version': '2.0'
         },
-        'votaciones': votaciones[:500]  # Limitar para performance
+        'votaciones': votaciones_ordenadas[:1000]  # Últimas 1000 para el sitio
     }
     
     with open('docs/data/votaciones.json', 'w', encoding='utf-8') as f:
         json.dump(datos_completos, f, ensure_ascii=False, indent=2)
-    print("✓ Generado: docs/data/votaciones.json")
+    print(f"✓ Generado: docs/data/votaciones.json ({len(datos_completos['votaciones'])} votaciones)")
     
-    # 2. Estadísticas resumen
+    # 2. Estadísticas por año
+    stats_por_anio = {}
+    for v in votaciones:
+        if v.get('Fecha'):
+            anio = v['Fecha'][:4]
+            if anio not in stats_por_anio:
+                stats_por_anio[anio] = {
+                    'total': 0,
+                    'aprobados': 0,
+                    'rechazados': 0
+                }
+            stats_por_anio[anio]['total'] += 1
+            
+            if v.get('Resultado'):
+                if 'aprobado' in v['Resultado'].lower():
+                    stats_por_anio[anio]['aprobados'] += 1
+                elif 'rechazado' in v['Resultado'].lower():
+                    stats_por_anio[anio]['rechazados'] += 1
+    
+    # 3. Estadísticas resumen
     stats = {
         'total_votaciones': len(votaciones),
         'fecha_actualizacion': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'periodo': {
+            'inicio': min(v.get('Fecha', '') for v in votaciones if v.get('Fecha'))[:10],
+            'fin': max(v.get('Fecha', '') for v in votaciones if v.get('Fecha'))[:10]
+        },
+        'por_anio': stats_por_anio,
+        'campos_disponibles': list(votaciones[0].keys()) if votaciones else []
     }
-    
-    # Intentar extraer más estadísticas si los campos existen
-    if votaciones:
-        primer_registro = votaciones[0]
-        stats['campos_disponibles'] = list(primer_registro.keys())
     
     with open('docs/data/estadisticas.json', 'w', encoding='utf-8') as f:
         json.dump(stats, f, ensure_ascii=False, indent=2)
-    print("✓ Generado: docs/data/estadisticas.json")
+    print(f"✓ Generado: docs/data/estadisticas.json")
     
-    # 3. README con info de última actualización
+    # 4. Resumen ejecutivo
+    total_aprobados = sum(1 for v in votaciones if v.get('Resultado', '').lower().find('aprobado') >= 0)
+    total_rechazados = sum(1 for v in votaciones if v.get('Resultado', '').lower().find('rechazado') >= 0)
+    
+    print(f"\n📊 RESUMEN:")
+    print(f"  • Total votaciones: {len(votaciones):,}")
+    print(f"  • Periodo: {stats['periodo']['inicio']} - {stats['periodo']['fin']}")
+    print(f"  • Aprobados: {total_aprobados:,} ({total_aprobados/len(votaciones)*100:.1f}%)")
+    print(f"  • Rechazados: {total_rechazados:,} ({total_rechazados/len(votaciones)*100:.1f}%)")
+    print(f"  • Años con datos: {len(stats_por_anio)}")
+    
+    # 5. README con info de última actualización
     readme_content = f"""# Datos - Seguimiento Legislativo Chile
 
 **Última actualización:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
+## Resumen de Datos
+
+- **Total de votaciones:** {len(votaciones):,}
+- **Periodo:** {stats['periodo']['inicio']} a {stats['periodo']['fin']}
+- **Años con datos:** {len(stats_por_anio)}
+
+### Votaciones por Año
+
+| Año | Total | Aprobados | Rechazados |
+|-----|-------|-----------|------------|
+"""
+    
+    for anio in sorted(stats_por_anio.keys(), reverse=True):
+        s = stats_por_anio[anio]
+        readme_content += f"| {anio} | {s['total']:,} | {s['aprobados']:,} | {s['rechazados']:,} |\n"
+    
+    readme_content += f"""
 ## Archivos Disponibles
 
-- `votaciones.json`: Datos completos de votaciones (últimas 500)
-- `estadisticas.json`: Estadísticas y metadata
+- `votaciones.json`: Últimas 1000 votaciones con todos los detalles
+- `estadisticas.json`: Estadísticas agregadas y metadata
 
 ## Fuente
 
@@ -158,8 +225,13 @@ def main():
     print("ACTUALIZADOR DE DATOS - SEGUIMIENTO LEGISLATIVO CHILE")
     print("🇨🇱 " * 20 + "\n")
     
-    # Años a consultar (puedes modificar esto)
-    annos_a_consultar = [2024]  # Empezar solo con 2024
+    # Años a consultar: desde 2001 hasta 2025
+    annos_a_consultar = list(range(2001, 2026))  # 2001 a 2025
+    
+    print(f"📅 Consultando años: {annos_a_consultar[0]} - {annos_a_consultar[-1]}")
+    print(f"   Total de años: {len(annos_a_consultar)}")
+    print("\n⚠️  NOTA: Esto puede tomar varios minutos...")
+    print("   El API procesará 25 años de datos.\n")
     
     try:
         # 1. Obtener datos del API

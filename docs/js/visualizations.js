@@ -3,6 +3,7 @@
  */
 
 let charts = {
+    evolucion: null,
     actividad: null,
     resultados: null,
     tipos: null,
@@ -34,6 +35,7 @@ function crearTodosLosGraficos() {
     
     console.log('📊 Creando visualizaciones con', votaciones.length, 'votaciones');
     
+    crearGraficoEvolucion(votaciones);
     crearGraficoActividad(votaciones);
     crearGraficoResultados(votaciones);
     crearGraficoTipos(votaciones);
@@ -41,7 +43,76 @@ function crearTodosLosGraficos() {
 }
 
 /**
- * Gráfico de actividad por mes
+ * Gráfico de evolución histórica por año
+ */
+function crearGraficoEvolucion(votaciones) {
+    const canvas = document.getElementById('evolucionChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Agrupar por año
+    const porAnio = {};
+    votaciones.forEach(v => {
+        if (!v.Fecha) return;
+        
+        try {
+            const anio = v.Fecha.substring(0, 4);
+            porAnio[anio] = (porAnio[anio] || 0) + 1;
+        } catch (e) {}
+    });
+    
+    const anios = Object.keys(porAnio).sort();
+    const valores = anios.map(a => porAnio[a]);
+    
+    if (charts.evolucion) charts.evolucion.destroy();
+    
+    charts.evolucion = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: anios,
+            datasets: [{
+                label: 'Votaciones por Año',
+                data: valores,
+                backgroundColor: 'rgba(0, 57, 166, 0.7)',
+                borderColor: '#0039a6',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Actividad Legislativa Histórica (2001-2025)',
+                    font: { size: 16, weight: 'bold' }
+                },
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Votaciones: ${context.parsed.y.toLocaleString('es-CL')}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('es-CL');
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Gráfico de actividad reciente (últimos 12 meses)
  */
 function crearGraficoActividad(votaciones) {
     const canvas = document.getElementById('actividadChart');
@@ -49,9 +120,23 @@ function crearGraficoActividad(votaciones) {
     
     const ctx = canvas.getContext('2d');
     
+    // Filtrar últimos 12 meses
+    const ahora = new Date();
+    const hace12Meses = new Date(ahora.getFullYear(), ahora.getMonth() - 12, 1);
+    
+    const votacionesRecientes = votaciones.filter(v => {
+        if (!v.Fecha) return false;
+        try {
+            const fecha = new Date(v.Fecha);
+            return fecha >= hace12Meses;
+        } catch (e) {
+            return false;
+        }
+    });
+    
     // Agrupar por mes
     const porMes = {};
-    votaciones.forEach(v => {
+    votacionesRecientes.forEach(v => {
         if (!v.Fecha) return;
         
         try {

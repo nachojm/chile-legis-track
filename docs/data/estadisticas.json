@@ -1,6 +1,132 @@
 {
-  "total_votaciones": 1844,
-  "fecha_actualizacion": "2024-12-18",
+  "total_votaciones": 25860,
+  "fecha_actualizacion": "2025-11-25 22:01:28",
+  "periodo": {
+    "inicio": "2002-03-19",
+    "fin": "2025-11-25"
+  },
+  "por_anio": {
+    "2002": {
+      "total": 454,
+      "aprobados": 0,
+      "rechazados": 0
+    },
+    "2003": {
+      "total": 706,
+      "aprobados": 0,
+      "rechazados": 0
+    },
+    "2004": {
+      "total": 719,
+      "aprobados": 304,
+      "rechazados": 102
+    },
+    "2005": {
+      "total": 569,
+      "aprobados": 453,
+      "rechazados": 114
+    },
+    "2006": {
+      "total": 731,
+      "aprobados": 574,
+      "rechazados": 157
+    },
+    "2007": {
+      "total": 803,
+      "aprobados": 676,
+      "rechazados": 118
+    },
+    "2008": {
+      "total": 830,
+      "aprobados": 626,
+      "rechazados": 200
+    },
+    "2009": {
+      "total": 638,
+      "aprobados": 539,
+      "rechazados": 96
+    },
+    "2010": {
+      "total": 963,
+      "aprobados": 774,
+      "rechazados": 131
+    },
+    "2011": {
+      "total": 1109,
+      "aprobados": 853,
+      "rechazados": 143
+    },
+    "2012": {
+      "total": 1170,
+      "aprobados": 839,
+      "rechazados": 220
+    },
+    "2013": {
+      "total": 1198,
+      "aprobados": 901,
+      "rechazados": 208
+    },
+    "2014": {
+      "total": 858,
+      "aprobados": 763,
+      "rechazados": 92
+    },
+    "2015": {
+      "total": 1158,
+      "aprobados": 1056,
+      "rechazados": 102
+    },
+    "2016": {
+      "total": 1294,
+      "aprobados": 1127,
+      "rechazados": 167
+    },
+    "2017": {
+      "total": 1051,
+      "aprobados": 895,
+      "rechazados": 156
+    },
+    "2018": {
+      "total": 1178,
+      "aprobados": 1028,
+      "rechazados": 150
+    },
+    "2019": {
+      "total": 1358,
+      "aprobados": 1138,
+      "rechazados": 218
+    },
+    "2020": {
+      "total": 1543,
+      "aprobados": 1236,
+      "rechazados": 297
+    },
+    "2021": {
+      "total": 1268,
+      "aprobados": 1054,
+      "rechazados": 214
+    },
+    "2022": {
+      "total": 1315,
+      "aprobados": 1092,
+      "rechazados": 222
+    },
+    "2023": {
+      "total": 1853,
+      "aprobados": 1493,
+      "rechazados": 360
+    },
+    "2024": {
+      "total": 1844,
+      "aprobados": 1379,
+      "rechazados": 465
+    },
+    "2025": {
+      "total": 1250,
+      "aprobados": 1005,
+      "rechazados": 243
+    }
+  },
   "campos_disponibles": [
     "Id",
     "Descripcion",
@@ -9,11 +135,11 @@
     "TotalNo",
     "TotalAbstencion",
     "TotalDispensado",
-    "Quorum_Codigo",
+    "Quorum_Valor",
     "Quorum",
-    "Resultado_Codigo",
+    "Resultado_Valor",
     "Resultado",
-    "Tipo_Codigo",
+    "Tipo_Valor",
     "Tipo"
   ]
 }

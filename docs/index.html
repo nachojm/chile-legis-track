@@ -27,12 +27,16 @@
                     <div class="stat-label">Total Votaciones</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="ultima-actualizacion">-</div>
-                    <div class="stat-label">Última Actualización</div>
+                    <div class="stat-value" id="total-aprobados">-</div>
+                    <div class="stat-label">Proyectos Aprobados</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="total-campos">-</div>
-                    <div class="stat-label">Campos de Datos</div>
+                    <div class="stat-value" id="promedio-si">-</div>
+                    <div class="stat-label">Promedio Votos Sí</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="ultima-actualizacion">-</div>
+                    <div class="stat-label">Última Actualización</div>
                 </div>
             </div>
         </section>
@@ -41,9 +45,16 @@
         <section class="visualization-section">
             <h2>Visualizaciones</h2>
             
+            <div class="chart-wrapper-full">
+                <h3>Evolución Histórica (2001-2025)</h3>
+                <div class="chart-container-large">
+                    <canvas id="evolucionChart"></canvas>
+                </div>
+            </div>
+            
             <div class="charts-grid">
                 <div class="chart-wrapper">
-                    <h3>Actividad por Fecha</h3>
+                    <h3>Actividad Reciente</h3>
                     <div class="chart-container">
                         <canvas id="actividadChart"></canvas>
                     </div>
