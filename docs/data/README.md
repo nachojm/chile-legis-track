@@ -1,6 +1,6 @@
 # Datos - Seguimiento Legislativo Chile
 
-**Última actualización:** 2025-11-25 22:01:28
+**Última actualización:** 2025-11-25 23:21:16
 
 ## Resumen de Datos
 

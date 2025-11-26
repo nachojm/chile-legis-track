@@ -125,6 +125,11 @@ def generar_datos_para_sitio(votaciones):
                 elif 'rechazado' in v['Resultado'].lower():
                     stats_por_anio[anio]['rechazados'] += 1
     
+    # Guardar estadísticas por año para gráficos
+    with open('docs/data/stats_por_anio.json', 'w', encoding='utf-8') as f:
+        json.dump(stats_por_anio, f, ensure_ascii=False, indent=2)
+    print(f"✓ Generado: docs/data/stats_por_anio.json")
+    
     # 3. Estadísticas resumen
     stats = {
         'total_votaciones': len(votaciones),

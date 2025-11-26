@@ -6,6 +6,7 @@
 const appState = {
     votaciones: [],
     estadisticas: {},
+    statsPorAnio: {},
     cargando: true
 };
 
@@ -42,6 +43,13 @@ async function cargarDatos() {
             console.log('📊 Estadísticas cargadas:', appState.estadisticas);
         }
         
+        // Cargar estadísticas por año
+        const respuestaStatsPorAnio = await fetch('data/stats_por_anio.json');
+        if (respuestaStatsPorAnio.ok) {
+            appState.statsPorAnio = await respuestaStatsPorAnio.json();
+            console.log('📈 Estadísticas por año cargadas');
+        }
+        
         // Cargar votaciones
         const respuestaVotaciones = await fetch('data/votaciones.json');
         if (respuestaVotaciones.ok) {
@@ -66,10 +74,11 @@ function renderizarEstadisticas() {
     const stats = appState.estadisticas;
     const votaciones = appState.votaciones;
     
-    // Total votaciones
+    // Total votaciones (usar el total real de estadísticas, no solo las cargadas)
     const totalElement = document.getElementById('total-votaciones');
     if (totalElement) {
-        totalElement.textContent = formatearNumero(votaciones.length || 0);
+        const totalReal = stats.total_votaciones || votaciones.length;
+        totalElement.textContent = formatearNumero(totalReal);
     }
     
     // Última actualización
@@ -78,16 +87,20 @@ function renderizarEstadisticas() {
         fechaElement.textContent = formatearFecha(stats.fecha_actualizacion);
     }
     
-    // Total aprobados
+    // Total aprobados (calcular del total real)
     const aprobadosElement = document.getElementById('total-aprobados');
-    if (aprobadosElement && votaciones.length > 0) {
+    if (aprobadosElement && stats.por_anio) {
+        const totalAprobados = Object.values(stats.por_anio)
+            .reduce((sum, anio) => sum + (anio.aprobados || 0), 0);
+        aprobadosElement.textContent = formatearNumero(totalAprobados);
+    } else if (votaciones.length > 0) {
         const aprobados = votaciones.filter(v => 
             v.Resultado && v.Resultado.toLowerCase().includes('aprobado')
         ).length;
         aprobadosElement.textContent = formatearNumero(aprobados);
     }
     
-    // Promedio votos Sí
+    // Promedio votos Sí (de votaciones cargadas)
     const promedioElement = document.getElementById('promedio-si');
     if (promedioElement && votaciones.length > 0) {
         const suma = votaciones.reduce((acc, v) => acc + (parseInt(v.TotalSi) || 0), 0);

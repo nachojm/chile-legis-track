@@ -27,6 +27,7 @@ function initVisualizaciones() {
  */
 function crearTodosLosGraficos() {
     const votaciones = window.appState.votaciones;
+    const statsPorAnio = window.appState.statsPorAnio;
     
     if (!votaciones || votaciones.length === 0) {
         console.log('No hay datos para visualizar');
@@ -34,8 +35,9 @@ function crearTodosLosGraficos() {
     }
     
     console.log('📊 Creando visualizaciones con', votaciones.length, 'votaciones');
+    console.log('📊 Stats por año:', Object.keys(statsPorAnio).length, 'años');
     
-    crearGraficoEvolucion(votaciones);
+    crearGraficoEvolucion(statsPorAnio);
     crearGraficoActividad(votaciones);
     crearGraficoResultados(votaciones);
     crearGraficoTipos(votaciones);
@@ -45,25 +47,23 @@ function crearTodosLosGraficos() {
 /**
  * Gráfico de evolución histórica por año
  */
-function crearGraficoEvolucion(votaciones) {
+function crearGraficoEvolucion(statsPorAnio) {
     const canvas = document.getElementById('evolucionChart');
     if (!canvas) return;
     
     const ctx = canvas.getContext('2d');
     
-    // Agrupar por año
-    const porAnio = {};
-    votaciones.forEach(v => {
-        if (!v.Fecha) return;
-        
-        try {
-            const anio = v.Fecha.substring(0, 4);
-            porAnio[anio] = (porAnio[anio] || 0) + 1;
-        } catch (e) {}
-    });
+    // Verificar que tengamos datos
+    if (!statsPorAnio || Object.keys(statsPorAnio).length === 0) {
+        console.log('No hay estadísticas por año');
+        return;
+    }
     
-    const anios = Object.keys(porAnio).sort();
-    const valores = anios.map(a => porAnio[a]);
+    // Ordenar años y extraer datos
+    const anios = Object.keys(statsPorAnio).sort();
+    const totales = anios.map(a => statsPorAnio[a].total);
+    const aprobados = anios.map(a => statsPorAnio[a].aprobados);
+    const rechazados = anios.map(a => statsPorAnio[a].rechazados);
     
     if (charts.evolucion) charts.evolucion.destroy();
     
@@ -71,13 +71,34 @@ function crearGraficoEvolucion(votaciones) {
         type: 'bar',
         data: {
             labels: anios,
-            datasets: [{
-                label: 'Votaciones por Año',
-                data: valores,
-                backgroundColor: 'rgba(0, 57, 166, 0.7)',
-                borderColor: '#0039a6',
-                borderWidth: 2
-            }]
+            datasets: [
+                {
+                    label: 'Aprobados',
+                    data: aprobados,
+                    backgroundColor: 'rgba(46, 204, 113, 0.8)',
+                    borderColor: '#2ecc71',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Rechazados',
+                    data: rechazados,
+                    backgroundColor: 'rgba(231, 76, 60, 0.8)',
+                    borderColor: '#e74c3c',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Total',
+                    data: totales,
+                    type: 'line',
+                    borderColor: '#0039a6',
+                    backgroundColor: 'rgba(0, 57, 166, 0.1)',
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }
+            ]
         },
         options: {
             responsive: true,
@@ -85,14 +106,17 @@ function crearGraficoEvolucion(votaciones) {
             plugins: {
                 title: {
                     display: true,
-                    text: 'Actividad Legislativa Histórica (2001-2025)',
+                    text: `Actividad Legislativa Histórica (${anios[0]}-${anios[anios.length-1]})`,
                     font: { size: 16, weight: 'bold' }
                 },
-                legend: { display: false },
+                legend: { 
+                    display: true,
+                    position: 'top'
+                },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return `Votaciones: ${context.parsed.y.toLocaleString('es-CL')}`;
+                            return `${context.dataset.label}: ${context.parsed.y.toLocaleString('es-CL')}`;
                         }
                     }
                 }
@@ -100,15 +124,24 @@ function crearGraficoEvolucion(votaciones) {
             scales: {
                 y: { 
                     beginAtZero: true,
+                    stacked: false,
                     ticks: {
                         callback: function(value) {
                             return value.toLocaleString('es-CL');
                         }
                     }
+                },
+                x: {
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
                 }
             }
         }
     });
+    
+    console.log('✓ Gráfico de evolución creado con', anios.length, 'años');
 }
 
 /**
